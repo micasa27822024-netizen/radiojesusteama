@@ -15,7 +15,7 @@ window.CONFIG = {
     "primario": "#22d3ee",
     "primarioOscuro": "#0891b2",
     "oro": "#fbbf24",
-    "secundario": "#a78bfa",
+    "secundario": "#fbd189",
     "fondoModal": "#121824"
   },
   "imagenes": {
@@ -101,22 +101,37 @@ window.CONFIG = {
     ]
   },
   "reuniones": {
-    "titulo": "Nuestras Reuniones",
-    "subtitulo": "Horarios de ejemplo · personalizalos",
-    "nombre": "Tu Iglesia",
+    "titulo": "Nuestras Dias de Reuniones",
+    "subtitulo": "En Pueblo Belgrano y Gilbert",
+    "nombre": "Ministerio Jesús Te Ama",
     "items": [
       {
-        "dia": "Domingo",
-        "hora": "10:00",
-        "nombre": "Culto general (ejemplo)",
+        "dia": "Martes",
+        "hora": "20:00 hs",
+        "nombre": "Culto general  - Pueblo Belgrano",
         "icono": "fa-solid fa-church",
         "destacado": true
       },
       {
-        "dia": "Miércoles",
-        "hora": "20:00",
-        "nombre": "Estudio bíblico (ejemplo)",
-        "icono": "fa-solid fa-book-bible"
+        "dia": "Sáabado",
+        "hora": "20:00 hs",
+        "nombre": "Culto general  - Pueblo Belgrano",
+        "icono": "fa-solid fa-book-bible",
+        "destacado": true
+      },
+      {
+        "dia": "Miércoles ",
+        "hora": "20:00 hs",
+        "nombre": "Culto General - Gilbert",
+        "icono": "fa-solid fa-church",
+        "destacado": true
+      },
+      {
+        "dia": "Viernes",
+        "hora": "20:00 hs",
+        "nombre": "Culto General - Gilbert",
+        "icono": "fa-solid fa-church",
+        "destacado": true
       }
     ]
   },
@@ -133,13 +148,13 @@ window.CONFIG = {
     "videos": []
   },
   "ubicacion": {
-    "titulo": "Nuestra Ubicación",
-    "direccion": "",
-    "localidad": "",
-    "provincia": "",
-    "codigoPostal": "",
-    "linkMapa": "",
-    "embedUrl": "",
+    "titulo": "Ministerio Jesús Te Ama Pueblo Belgrano",
+    "direccion": " Veronesi y Nuestra Señora de la Merced 417",
+    "localidad": "Pueblo Belgrano, Gualeguaychú",
+    "provincia": "Entre Ríos",
+    "codigoPostal": "2821",
+    "linkMapa": "https://maps.app.goo.gl/JbG8FRsqbsN1tbd19",
+    "embedUrl": "https://maps.app.goo.gl/JbG8FRsqbsN1tbd19",
     "textoComoLlegar": "Cómo llegar",
     "textoMiUbicacion": "Usar mi ubicación",
     "textoConsultarCongregaciones": "Consultar sobre la iglesia",
@@ -159,6 +174,18 @@ window.CONFIG = {
       "etiqueta": "Transmitir a Smart TV",
       "icono": "fa-solid fa-tv",
       "url": ""
+    },
+    {
+      "tipo": "compartir",
+      "etiqueta": "Compartir app",
+      "url": "https://micasa27822024-netizen.github.io/radiojesusteama/",
+      "icono": "fa-solid fa-share-nodes"
+    },
+    {
+      "tipo": "compartir",
+      "etiqueta": "Devocional Diario",
+      "url": "https://micasa27822024-netizen.github.io/devocionalministeriojesusteama/index.html",
+      "icono": "fa-solid fa-share-nodes"
     }
   ],
   "chat": {
@@ -237,7 +264,7 @@ window.CONFIG = {
     "mensajeOracion": "Hola, quisiera dejar un pedido de oración:"
   },
   "instalacion": {
-    "titulo": "Llevá {radio} con vos",
+    "titulo": "Llevá  nuestra radio con vos",
     "mensaje": "Instalá nuestra app y escuchá la radio Jesús Te Ama desde tu pantalla de inicio.",
     "textoBoton": "Instalar app",
     "textoCancelar": "Ahora no",
