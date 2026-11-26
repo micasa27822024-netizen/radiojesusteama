@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Radio en vivo</title>
+
+  <!-- Metadatos que se completan automáticamente desde config.js -->
+  <meta name="description" id="metaDescription" content="">
+  <meta property="og:title" id="ogTitle" content="">
+  <meta property="og:description" id="ogDescription" content="">
+  <meta property="og:image" id="ogImage" content="">
+  <meta property="og:url" id="ogUrl" content="">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" id="themeColorMeta" content="#f59e0b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" id="appleTitle" content="Radio">
+  <link rel="apple-touch-icon" href="assets/icono.png">
+  <link rel="icon" type="image/png" href="assets/icono.png">
+
+  <!-- Iconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Google Cast (transmitir a Smart TV) -->
+  <script type="text/javascript" src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+
+  <style>
+    /* ==========================================================================
+       VARIABLES DE MARCA — config.js las reemplaza al cargar
+       ========================================================================== */
+    :root {
+      --primario:        #f59e0b;
+      --primario-oscuro: #d97706;
+      --oro:             #d4af37;
+      --secundario:      #38bdf8;
+      --fondo-modal:     #121824;
+
+      --fondo-movil:      url("assets/fondo-movil.jpg");
+      --fondo-escritorio: url("assets/fondo-escritorio.jpg");
+
+      --texto:       #ffffff;
+      --texto-suave: #9ca3af;
+      --alto:        #22c55e;
+      --alerta:      #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    [hidden] { display: none !important; }
+
+    body, html {
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+      color: var(--texto);
+      background: #000;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button { font-family: inherit; }
+
+    /* ==========================================================================
+       FONDO Y ESTRUCTURA
+       ========================================================================== */
+    .background-container {
+      position: fixed;
+      inset: 0;
+      background-image: var(--fondo-movil);
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: calc(8px + env(safe-area-inset-top)) 12px calc(8px + env(safe-area-inset-bottom));
+    }
+
+    @media (min-width: 768px) {
+      .background-container { background-image: var(--fondo-escritorio); }
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom,
+        rgba(0,0,0,0.25) 0%,
+        rgba(0,0,0,0) 20%,
+        rgba(0,0,0,0.10) 70%,
+        rgba(0,0,0,0.85) 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* ==========================================================================
+       BARRA SUPERIOR — se adapta a cualquier cantidad de botones
+       ========================================================================== */
+    .top-bar {
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding: 6px 2px;
+      flex-shrink: 0;
+    }
+    .top-bar::-webkit-scrollbar { display: none; }
+
+    .top-actions {
+      display: flex;
+      gap: 3px;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      width: max-content;
+    }
+
+    .btn-top {
+      flex: 0 0 auto;
+      background: rgba(0, 0, 0, 0.6);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: var(--texto);
+      height: 30px;
+      padding: 0 5px;
+      border-radius: 15px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.68rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      gap: 2px;
+      white-space: nowrap;
+      transition: transform 0.15s, background 0.15s;
+    }
+    .btn-top:hover { transform: scale(1.03); background: rgba(0, 0, 0, 0.78); }
+    .btn-top:active { transform: scale(0.97); }
+
+    /* ==========================================================================
+       ZONA INFERIOR
+       ========================================================================== */
+    .bottom-section {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    /* --- Versículo diario --- */
+    .verse-card {
+      background: rgba(0, 0, 0, 0.65);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 12px;
+      padding: 8px 14px;
+      text-align: center;
+      width: 100%;
+    }
+    .verse-text {
+      font-size: 0.95rem;
+      font-style: italic;
+      color: #fdfdfd;
+      line-height: 1.35;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    }
+    .verse-ref {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--primario);
+      margin-top: 3px;
+      letter-spacing: 0.5px;
+    }
+
+    /* --- Tarjeta "sonando ahora" --- */
+    .song-card {
+      background: rgba(0, 0, 0, 0.82);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(212, 175, 55, 0.6);
+      border-radius: 12px;
+      padding: 10px 14px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+    }
+
+    .equalizer {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 22px;
+      width: 28px;
+      padding-bottom: 2px;
+      flex-shrink: 0;
+    }
+    .eq-bar {
+      width: 4px;
+      background: linear-gradient(to top, var(--oro), #ffe066);
+      border-radius: 2px;
+      box-shadow: 0 0 8px rgba(212, 175, 55, 0.8);
+      animation: eqAnimation 1.2s infinite ease-in-out alternate;
+    }
+    .eq-bar:nth-child(1) { height: 40%; animation-duration: 0.8s; animation-delay: 0.1s; }
+    .eq-bar:nth-child(2) { height: 90%; animation-duration: 1.1s; animation-delay: 0.3s; }
+    .eq-bar:nth-child(3) { height: 60%; animation-duration: 0.7s; animation-delay: 0.2s; }
+    .eq-bar:nth-child(4) { height: 100%; animation-duration: 1.0s; animation-delay: 0.4s; }
+
+    @keyframes eqAnimation {
+      0%   { transform: scaleY(0.3); opacity: 0.6; }
+      100% { transform: scaleY(1.1); opacity: 1; box-shadow: 0 0 14px #ffe066; }
+    }
+
+    .song-info {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--texto);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+      letter-spacing: 0.3px;
+      min-width: 0;
+    }
+
+    /* --- Fila del reproductor --- */
+    .player-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      padding: 8px 16px;
+      border-radius: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #e5e7eb;
+      min-width: 90px;
+    }
+
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: inline-block;
+      background-color: #6b7280;
+      box-shadow: 0 0 6px rgba(107, 114, 128, 0.6);
+      transition: background-color 0.3s, box-shadow 0.3s;
+      flex-shrink: 0;
+    }
+    .status-dot.online {
+      background-color: var(--alto);
+      box-shadow: 0 0 12px var(--alto);
+      animation: blinkPulse 2s infinite ease-in-out;
+    }
+    .status-dot.reconnecting {
+      background-color: var(--primario);
+      box-shadow: 0 0 10px var(--primario);
+      animation: blinkFast 0.8s infinite ease-in-out;
+    }
+    .status-dot.offline {
+      background-color: var(--alerta);
+      box-shadow: 0 0 6px var(--alerta);
+    }
+
+    @keyframes blinkPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.85); }
+    }
+    @keyframes blinkFast {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.2; }
+    }
+
+    .btn-play-wrapper { position: relative; display: flex; justify-content: center; align-items: center; }
+
+    .btn-play {
+      position: relative;
+      z-index: 2;
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primario), var(--primario-oscuro));
+      border: 3px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 0 25px rgba(245, 158, 11, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.4);
+      color: #fff;
+      font-size: 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
+      padding-left: 4px;
+    }
+    .btn-play:hover {
+      transform: scale(1.12);
+      box-shadow: 0 0 35px rgba(245, 158, 11, 1), inset 0 0 20px rgba(255, 255, 255, 0.6);
+    }
+    .btn-play:active { transform: scale(0.96); }
+    .btn-play.playing {
+      padding-left: 0;
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      border-color: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 0 30px rgba(239, 68, 68, 0.9), inset 0 0 15px rgba(255, 255, 255, 0.4);
+      animation: playPulseGlow 2s infinite ease-in-out;
+    }
+
+    @keyframes playPulseGlow {
+      0%, 100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.8), 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      50%      { box-shadow: 0 0 40px rgba(239, 68, 68, 1), 0 0 0 16px rgba(239, 68, 68, 0); }
+    }
+
+    .volume-container {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 90px;
+      justify-content: flex-end;
+    }
+    .volume-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 60px;
+      height: 5px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.4);
+      outline: none;
+      cursor: pointer;
+    }
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+    .volume-slider::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border: none;
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    /* --- Pie de redes --- */
+    .footer-section {
+      width: 100%;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.85);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      padding: 8px 12px 10px 12px;
+      border-radius: 16px 16px 0 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .footer-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #e5e7eb;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .social-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .social-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      font-size: 1.05rem;
+      text-decoration: none;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+      transition: transform 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+    .social-btn:hover { transform: scale(1.12); }
+    .social-btn:active { transform: scale(0.95); }
+
+    /* ==========================================================================
+       MODALES
+       ========================================================================== */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      z-index: 10;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: var(--fondo-modal);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 480px;
+      width: 100%;
+      color: #fff;
+      max-height: 88vh;
+      overflow-y: auto;
+      animation: modalIn 0.18s ease-out;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+      gap: 10px;
+    }
+    .modal-header h3 { font-size: 1.1rem; color: var(--primario); }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .schedule-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+      gap: 10px;
+    }
+    .schedule-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .schedule-title { font-size: 0.9rem; font-weight: 600; color: #fff; }
+    .schedule-days { font-size: 0.75rem; color: var(--texto-suave); }
+    .schedule-time { font-size: 0.85rem; font-weight: 700; color: var(--primario); white-space: nowrap; }
+
+    .prog-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      scrollbar-width: none;
+    }
+    .prog-tabs::-webkit-scrollbar { display: none; }
+
+    .prog-tab {
+      flex: 0 0 auto;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #e5e7eb;
+      padding: 6px 13px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .prog-tab:hover { background: rgba(255, 255, 255, 0.12); }
+    .prog-tab.activo {
+      background: var(--primario);
+      border-color: var(--primario);
+      color: #1a1205;
+    }
+
+    /* En celulares las pestañas se reparten en dos filas parejas
+       para que todos los días queden a la vista. */
+    @media (max-width: 520px) {
+      .prog-tabs {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+        overflow: visible;
+      }
+      .prog-tab { flex: 0 1 auto; min-width: 88px; text-align: center; }
+    }
+
+    .prog-slot {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 11px 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+    }
+    .prog-slot:last-child { border-bottom: none; }
+
+    .prog-hora {
+      flex: 0 0 54px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--primario);
+      letter-spacing: 0.3px;
+      padding-top: 2px;
+    }
+
+    .prog-programa {
+      font-size: 0.88rem;
+      line-height: 1.35;
+      color: #ffffff;
+    }
+
+    .reuniones-header-box {
+      text-align: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .subtitulo-iglesia {
+      font-size: 0.7rem;
+      letter-spacing: 1.5px;
+      color: var(--secundario);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .reuniones-header-box h2 { margin: 2px 0; color: #fff; font-size: 1.4rem; font-style: italic; }
+
+    .reunion-row {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      gap: 12px;
+    }
+    .reunion-icon-box {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid var(--secundario);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--secundario);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .reunion-details { display: flex; flex-direction: column; min-width: 0; }
+    .reunion-time-tag { display: flex; gap: 6px; font-size: 0.8rem; font-weight: 800; }
+    .reunion-time-tag .day { color: #fff; }
+    .reunion-time-tag .hour { color: var(--secundario); }
+    .reunion-name { color: #e2e8f0; font-size: 0.95rem; font-weight: 600; }
+
+    .reunion-row.destacado { border-color: rgba(245, 158, 11, 0.4); }
+    .reunion-row.destacado .reunion-icon-box { border-color: var(--primario); color: var(--primario); }
+    .reunion-row.destacado .hour { color: var(--primario); }
+
+    .video-wrapper {
+      display: none;
+      margin-bottom: 15px;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+    .video-title-bar {
+      background: #1f2937;
+      padding: 8px 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--primario);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
+    .video-container iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .btn-play-video {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .btn-play-video:hover { transform: scale(1.05); }
+
+    /* --- Ubicación --- */
+    .mapa-wrapper {
+      position: relative;
+      height: 250px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      background: #0b1220;
+    }
+    .mapa-wrapper iframe { display: block; width: 100%; height: 100%; border: 0; }
+
+    .ubicacion-datos { margin-top: 12px; text-align: center; }
+    .ubicacion-nombre { font-size: 0.98rem; font-weight: 800; color: var(--primario); line-height: 1.3; }
+    .ubicacion-direccion { margin-top: 2px; font-size: 0.88rem; line-height: 1.4; color: #e5e7eb; }
+    .ubicacion-enlace {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 0.76rem;
+      color: var(--texto-suave);
+      text-decoration: underline;
+    }
+
+    .ubicacion-acciones {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .btn-ubicacion {
+      min-height: 42px;
+      padding: 8px 12px;
+      border-radius: 22px;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.15s, filter 0.15s;
+      text-align: center;
+    }
+    .btn-ubicacion:hover { transform: translateY(-1px); filter: brightness(1.05); }
+    .btn-ubicacion.primario {
+      background: linear-gradient(135deg, var(--primario), var(--primario-oscuro));
+      color: #1a1205;
+    }
+    .btn-ubicacion.secundario {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: #ffffff;
+    }
+    .btn-ubicacion.whatsapp {
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      color: #06281b;
+      font-weight: 800;
+    }
+    .btn-ubicacion.ancho-completo { grid-column: 1 / -1; }
+    .btn-ubicacion[hidden] { display: none !important; }
+
+    .ubicacion-nota {
+      margin-top: 10px;
+      min-height: 16px;
+      text-align: center;
+      font-size: 0.74rem;
+      line-height: 1.35;
+      color: var(--texto-suave);
+    }
+
+    @media (max-width: 430px) {
+      .ubicacion-acciones { grid-template-columns: 1fr; }
+      .btn-ubicacion { min-height: 44px; }
+    }
+
+    .schedule-item.live-item {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--alerta);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 12px;
+    }
+    .badge-live {
+      background: var(--alerta);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      animation: blinkFast 1s infinite ease-in-out;
+      display: inline-block;
+      margin-bottom: 4px;
+      width: max-content;
+    }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--texto-suave);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .empty-message {
+      text-align: center;
+      color: var(--texto-suave);
+      padding: 14px 10px;
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+    .empty-message a { color: #d1d5db; text-decoration: underline; }
+
+    .modal-link {
+      display: block;
+      margin-top: 15px;
+      text-align: center;
+      color: var(--texto-suave);
+      font-size: 0.78rem;
+      text-decoration: underline;
+    }
+
+    .oculto { display: none !important; }
+
+    /* La fila original mide 388 px de ancho. En pantallas de 411 px o menos
+       se compacta apenas (0,04 rem) para que los 6 botones entren completos.
+       En equipos donde la fila ya entraba, no se modifica nada. */
+    @media (max-width: 411px) {
+      .btn-top { padding: 0 3px; font-size: 0.64rem; }
+    }
+
+    @media (max-width: 359px) {
+      .top-actions { gap: 2px; }
+      .btn-top { padding: 0 2px; font-size: 0.60rem; gap: 1px; }
+    }
+
+    /* Celulares muy angostos: los 6 botones sociales entran en una sola fila */
+    @media (max-width: 360px) {
+      .social-buttons { gap: 7px; }
+      .social-btn { width: 34px; height: 34px; font-size: 0.95rem; }
+      .status-badge { min-width: 78px; font-size: 0.68rem; }
+      .volume-container { min-width: 78px; }
+      .volume-slider { width: 48px; }
+    }
+
+    /* Pantallas grandes: se agranda un poco el conjunto para que no quede chico */
+    @media (min-width: 1024px) and (min-height: 700px) {
+      .bottom-section { max-width: 560px; gap: 10px; }
+      .verse-text { font-size: 1.05rem; }
+      .song-info { font-size: 1rem; }
+      .btn-play { width: 70px; height: 70px; font-size: 1.7rem; }
+      .player-row { padding: 10px 20px; }
+      .btn-top { height: 34px; font-size: 0.78rem; padding: 0 11px; border-radius: 17px; }
+    }
+
+    /* En pantallas muy bajas (celular acostado) se prioriza el reproductor */
+    @media (max-height: 520px) {
+      .verse-card { display: none; }
+      .bottom-section { gap: 5px; }
+    }
+    /* --- Chat --- */
+    .chat-flotante {
+      position: fixed;
+      right: calc(10px + env(safe-area-inset-right));
+      bottom: calc(96px + env(safe-area-inset-bottom));
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: linear-gradient(135deg, var(--primario), var(--primario-oscuro));
+      color: #1a1205;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 9;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+      transition: transform 0.15s, filter 0.15s;
+    }
+    .chat-flotante:hover { transform: translateY(-2px); filter: brightness(1.06); }
+    .chat-flotante:active { transform: scale(0.96); }
+
+    .chat-punto {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #ef4444;
+      border: 2px solid #0b0f17;
+    }
+
+    .chat-content { display: flex; flex-direction: column; }
+
+    .chat-lista {
+      flex: 1 1 auto;
+      min-height: 200px;
+      max-height: 50vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 2px 4px 2px 0;
+      overscroll-behavior: contain;
+    }
+
+    .chat-vacio {
+      margin: auto;
+      text-align: center;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: var(--texto-suave);
+      padding: 20px 10px;
+    }
+
+    .chat-msg {
+      align-self: flex-start;
+      max-width: 84%;
+      padding: 7px 11px 6px;
+      border-radius: 14px 14px 14px 4px;
+      background: rgba(255, 255, 255, 0.09);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .chat-msg.propio {
+      align-self: flex-end;
+      background: linear-gradient(135deg, var(--primario), var(--primario-oscuro));
+      border-color: transparent;
+      border-radius: 14px 14px 4px 14px;
+      color: #1a1205;
+    }
+
+    .chat-msg-nombre { font-size: 0.66rem; font-weight: 800; letter-spacing: 0.2px; opacity: 0.85; }
+    .chat-msg-texto { font-size: 0.86rem; line-height: 1.35; word-break: break-word; white-space: pre-wrap; }
+    .chat-msg-hora { font-size: 0.62rem; opacity: 0.65; text-align: right; }
+
+    .chat-form {
+      display: grid;
+      grid-template-columns: 96px 1fr 42px;
+      gap: 6px;
+      margin-top: 10px;
+      align-items: center;
+    }
+
+    .chat-form input {
+      height: 40px;
+      padding: 0 11px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.20);
+      background: rgba(255, 255, 255, 0.07);
+      color: #fff;
+      font-size: 0.85rem;
+      font-family: inherit;
+      min-width: 0;
+    }
+    .chat-form input::placeholder { color: rgba(255, 255, 255, 0.45); }
+    .chat-form input:focus { outline: none; border-color: var(--primario); }
+
+    .chat-enviar {
+      width: 42px;
+      height: 40px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, var(--primario), var(--primario-oscuro));
+      color: #1a1205;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .chat-enviar:disabled { opacity: 0.55; cursor: default; }
+
+    .chat-estado {
+      min-height: 15px;
+      margin-top: 7px;
+      font-size: 0.72rem;
+      line-height: 1.35;
+      color: var(--texto-suave);
+      text-align: center;
+    }
+    .chat-estado.error { color: #fca5a5; }
+
+    @media (max-width: 430px) {
+      .chat-form { grid-template-columns: 1fr 42px; }
+      .chat-nombre { grid-column: 1 / -1; }
+      .chat-flotante { bottom: calc(104px + env(safe-area-inset-bottom)); }
+    }
+
+    .chat-header-botones { display: flex; align-items: center; gap: 8px; }
+
+    .chat-modobtn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #e5e7eb;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+    .chat-modobtn.activo { color: var(--primario); border-color: var(--primario); }
+
+    .chat-modo {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px dashed rgba(255, 255, 255, 0.18);
+    }
+    .chat-modo p { font-size: 0.76rem; line-height: 1.4; color: #e5e7eb; }
+    .chat-modo-titulo { font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .chat-modo-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 6px; margin-top: 6px; }
+    .chat-modo-form input {
+      height: 34px;
+      min-width: 0;
+      padding: 0 9px;
+      border-radius: 9px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.07);
+      color: #fff;
+      font-size: 0.78rem;
+      font-family: inherit;
+    }
+    .chat-modo-form input:focus { outline: none; border-color: var(--primario); }
+    .chat-modo-form button {
+      height: 34px;
+      padding: 0 12px;
+      border: none;
+      border-radius: 9px;
+      background: linear-gradient(135deg, var(--primario), var(--primario-oscuro));
+      color: #1a1205;
+      font-weight: 800;
+      font-size: 0.76rem;
+      cursor: pointer;
+    }
+    .chat-modo-estado { margin-top: 6px; font-size: 0.72rem; color: #fca5a5; min-height: 14px; }
+    .chat-modo-logeado { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .chat-salir {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #e5e7eb;
+      border-radius: 8px;
+      padding: 5px 9px;
+      font-size: 0.72rem;
+      cursor: pointer;
+    }
+
+    .chat-msg { position: relative; }
+    .chat-msg.propio { padding-right: 26px; }
+    .chat-borrar {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: #7f1d1d;
+      color: #fff;
+      font-size: 0.62rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+    }
+    .chat-borrar:hover { background: #b91c1c; }
+
+    @media (max-width: 430px) {
+      .chat-modo-form { grid-template-columns: 1fr; }
+    }
+
+  .radio-brand{text-align:center;margin-bottom:14px;text-shadow:0 2px 18px #000}.radio-brand h1{font-size:clamp(1.25rem,4vw,2rem);line-height:1.2}.radio-brand p{font-size:.85rem;color:#d1d5db;margin-top:5px}.background-container .content{justify-content:space-between}
+  .install-content{max-width:440px!important}.install-content p{line-height:1.6;margin:12px 0;color:#dbe5ef}.install-content #ayudaInstalar{white-space:pre-line;font-size:.9rem}.install-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}.install-actions button{border:1px solid #334155;border-radius:12px;padding:12px 16px;background:#1e293b;color:#fff;cursor:pointer;font-weight:600}.install-actions #confirmarInstalar{background:var(--primario);color:#082f49}.install-content h3{overflow-wrap:anywhere}
+  </style>
+</head>
+<body>
+
+  <div class="background-container">
+    <div class="overlay"></div>
+
+    <div class="content">
+
+      <!-- Botones superiores: se generan desde config.js -->
+      <div class="top-bar" id="topBar">
+        <div class="top-actions" id="topActions"></div>
+      </div>
+
+      <div class="bottom-section">
+        <div class="radio-brand"><h1 id="radioName">Tu Radio Cristiana</h1><p id="radioSlogan">Una voz de fe y esperanza</p></div>
+
+        <!-- Versículo del día -->
+        <div class="verse-card" id="verseCard">
+          <div class="verse-text" id="verseText">Cargando versículo...</div>
+          <div class="verse-ref" id="verseRef"></div>
+        </div>
+
+        <!-- Sonando ahora -->
+        <div class="song-card">
+          <div class="equalizer" aria-hidden="true">
+            <div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+            <div class="eq-bar"></div>
+          </div>
+          <div class="song-info" id="songInfoText">Sintonizando transmisión en vivo...</div>
+        </div>
+
+        <!-- Reproductor -->
+        <div class="player-row">
+          <div class="status-badge">
+            <span class="status-dot offline" id="statusDot"></span>
+            <span id="statusText">EN PAUSA</span>
+          </div>
+
+          <div class="btn-play-wrapper">
+            <button class="btn-play" id="playBtn" type="button" aria-label="Reproducir">
+              <i class="fa-solid fa-play" id="playIcon"></i>
+            </button>
+          </div>
+
+          <div class="volume-container">
+            <i class="fa-solid fa-volume-high" id="volIcon" role="button" tabindex="0" aria-label="Silenciar" style="cursor:pointer; font-size: 0.9rem;"></i>
+            <input type="range" class="volume-slider" id="volSlider" min="0" max="1" step="0.05" value="1" aria-label="Volumen">
+          </div>
+        </div>
+
+        <!-- Redes -->
+        <div class="footer-section" id="footerSection">
+          <div class="footer-title" id="footerTitle">Contacto &amp; Redes Sociales</div>
+          <div class="social-buttons" id="socialButtons"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio principal -->
+  <audio id="radioStream" crossorigin="anonymous" preload="auto"></audio>
+  <audio id="silentAudio" loop></audio>
+
+  <!-- ============================ MODALES ============================ -->
+
+  <div class="modal" id="modalProgramacion" role="dialog" aria-modal="true" aria-labelledby="tituloProgramacion">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="tituloProgramacion"><i class="fa-solid fa-radio"></i> Programación de Radio</h3>
+        <button class="modal-close" type="button" data-cerrar="modalProgramacion" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="programacionList"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="modalReuniones" role="dialog" aria-modal="true" aria-labelledby="tituloReuniones">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="tituloReuniones"><i class="fa-solid fa-church" style="color: var(--secundario);"></i> Nuestras Reuniones</h3>
+        <button class="modal-close" type="button" data-cerrar="modalReuniones" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="reuniones-header-box">
+        <span class="subtitulo-iglesia" id="reunionesSubtitulo"></span>
+        <h2 id="reunionesNombre"></h2>
+      </div>
+
+      <div id="reunionesList"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="modalUbicacion" role="dialog" aria-modal="true" aria-labelledby="tituloUbicacion">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="tituloUbicacion"><i class="fa-solid fa-location-dot" style="color: var(--primario);"></i> Nuestra Ubicación</h3>
+        <button class="modal-close" type="button" data-cerrar="modalUbicacion" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="mapa-wrapper">
+        <iframe id="mapaIframe" title="Mapa de la iglesia" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+
+      <div class="ubicacion-datos">
+        <p class="ubicacion-nombre" id="ubicacionNombre"></p>
+        <p class="ubicacion-direccion" id="ubicacionDireccion"></p>
+        <a class="ubicacion-enlace" id="enlaceMapa" href="#" target="_blank" rel="noopener">
+          <i class="fa-solid fa-map-location-dot"></i> Ver ficha en Google Maps
+        </a>
+      </div>
+
+      <div class="ubicacion-acciones">
+        <a class="btn-ubicacion primario" id="btnComoLlegar" href="#" target="_blank" rel="noopener">
+          <i class="fa-solid fa-diamond-turn-right"></i> <span id="btnComoLlegarTexto">Cómo llegar</span>
+        </a>
+        <button class="btn-ubicacion secundario" id="btnMiUbicacion" type="button">
+          <i class="fa-solid fa-location-crosshairs"></i> <span id="btnMiUbicacionTexto">Usar mi ubicación</span>
+        </button>
+        <a class="btn-ubicacion whatsapp ancho-completo" id="btnConsultarCongregaciones" href="#" target="_blank" rel="noopener">
+          <i class="fa-brands fa-whatsapp"></i> <span id="btnConsultarCongregacionesTexto">Consultar por las congregaciones de la común fe</span>
+        </a>
+      </div>
+
+      <p class="ubicacion-nota" id="ubicacionEstado" role="status"></p>
+    </div>
+  </div>
+
+  <div class="modal" id="modalPredicas" role="dialog" aria-modal="true" aria-labelledby="tituloPredicas">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="tituloPredicas"><i class="fa-brands fa-youtube" style="color:#ff4d4d;"></i> Prédicas &amp; Mensajes</h3>
+        <button class="modal-close" type="button" data-cerrar="modalPredicas" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="video-wrapper" id="videoWrapper">
+        <div class="video-title-bar">
+          <span id="videoTitleDisplay">Reproduciendo...</span>
+          <button class="modal-close" type="button" id="cerrarVideo" aria-label="Cerrar video" style="font-size:1rem;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="video-container">
+          <iframe id="ytIframePlayer" title="Reproductor de YouTube" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </div>
+      </div>
+
+      <div id="liveStreamContainer"></div>
+
+      <div class="section-label">Últimos videos:</div>
+      <div id="latestVideosContainer">
+        <div class="empty-message"><i class="fa-solid fa-spinner fa-spin"></i> Cargando transmisiones...</div>
+      </div>
+
+      <a class="modal-link" id="canalYoutubeLink" href="#" target="_blank" rel="noopener">
+        <i class="fa-brands fa-youtube"></i> Abrir canal completo en YouTube
+      </a>
+    </div>
+  </div>
+
+  <div class="modal" id="modalChat" role="dialog" aria-modal="true" aria-labelledby="tituloChat">
+    <div class="modal-content chat-content">
+      <div class="modal-header">
+        <h3 id="tituloChat"><i class="fa-solid fa-comments" style="color: var(--primario);"></i> <span id="tituloChatTexto">Chat</span></h3>
+        <div class="chat-header-botones">
+          <button class="chat-modobtn" id="chatModoBoton" type="button" title="Modo moderador" aria-label="Modo moderador" hidden><i class="fa-solid fa-user-shield"></i></button>
+          <button class="modal-close" type="button" data-cerrar="modalChat" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+
+      <div class="chat-modo" id="chatModoPanel" hidden>
+        <div id="chatModoFormBox">
+          <p class="chat-modo-titulo"><i class="fa-solid fa-user-shield"></i> Modo moderador</p>
+          <form class="chat-modo-form" id="chatModoForm" autocomplete="off">
+            <input id="chatModoEmail" type="email" placeholder="Correo del moderador" aria-label="Correo del moderador">
+            <input id="chatModoPass" type="password" placeholder="Contraseña" aria-label="Contraseña">
+            <button type="submit">Entrar</button>
+          </form>
+          <p class="chat-modo-estado" id="chatModoEstado" role="status"></p>
+        </div>
+        <div class="chat-modo-logeado" id="chatModoActivo" hidden>
+          <p><i class="fa-solid fa-user-shield"></i> Moderando como <strong id="chatModoQuien"></strong></p>
+          <button class="chat-salir" type="button" id="chatSalirModo">Salir</button>
+        </div>
+      </div>
+
+      <div class="chat-lista" id="chatLista"></div>
+
+      <form class="chat-form" id="chatForm" autocomplete="off">
+        <input class="chat-nombre" id="chatNombre" type="text" maxlength="20" placeholder="Tu nombre" aria-label="Tu nombre">
+        <input class="chat-texto" id="chatTexto" type="text" maxlength="280" placeholder="Escribí un mensaje..." aria-label="Mensaje">
+        <button class="chat-enviar" id="chatEnviar" type="submit" aria-label="Enviar mensaje"><i class="fa-solid fa-paper-plane"></i></button>
+      </form>
+
+      <p class="chat-estado" id="chatEstado" role="status"></p>
+    </div>
+  </div>
+
+  <button class="chat-flotante" id="chatFlotante" type="button" aria-label="Abrir chat" title="Chat de la iglesia">
+    <i class="fa-solid fa-comments"></i>
+    <span class="chat-punto" id="chatPunto" hidden></span>
+  </button>
+
+  <div class="modal" id="modalInstalar" role="dialog" aria-modal="true" aria-labelledby="tituloInstalar">
+    <div class="modal-content install-content">
+      <div class="modal-header"><h3 id="tituloInstalar">Instalá la radio</h3><button class="modal-close" type="button" data-cerrar="modalInstalar" aria-label="Cerrar">×</button></div>
+      <p id="mensajeInstalar"></p>
+      <p id="ayudaInstalar" role="status" aria-live="polite"></p>
+      <div class="install-actions"><button type="button" id="confirmarInstalar">Instalar app</button><button type="button" id="posponerInstalar" data-cerrar="modalInstalar">Ahora no</button></div>
+    </div>
+  </div>
+
+  <!-- ============================ DATOS ============================ -->
+  <script src="versiculos.js"></script>
+  <script src="config.js"></script>
+  <script src="template-core.js"></script>
+
+  <!-- ============================ APLICACIÓN ============================ -->
+  <script src="app.js"></script>
+
+</body>
+</html>

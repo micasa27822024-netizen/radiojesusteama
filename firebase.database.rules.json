@@ -1,0 +1,33 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "chat": {
+      "mensajes": {
+        ".read": true,
+        ".indexOn": [
+          "ts"
+        ],
+        "$mensaje": {
+          ".write": "(!data.exists() && newData.exists()) || (data.exists() && !newData.exists() && auth != null && false)",
+          ".validate": "newData.hasChildren(['nombre','texto','ts','cid'])",
+          "nombre": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 20"
+          },
+          "texto": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 280"
+          },
+          "ts": {
+            ".validate": "newData.isNumber() && newData.val() >= now - 60000 && newData.val() <= now + 60000"
+          },
+          "cid": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    }
+  }
+}

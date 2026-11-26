@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor visual · Tu Radio</title>
+<link rel="icon" href="assets/icono.png">
+<link rel="stylesheet" href="editor.css">
+</head>
+<body>
+<div class="shell">
+<aside class="sidebar">
+<div class="brand"><div class="brand-mark" aria-hidden="true">◉</div><div><b>Estudio de radio</b><small>Plantilla editable · edición 2.1</small></div></div>
+<nav class="nav" id="navigation" aria-label="Secciones del editor"></nav>
+<div class="side-foot"><small>Tu contenido, tu identidad.</small><p class="lead">Este editor prepara archivos. No modifica el sitio publicado hasta que los subas.</p></div>
+</aside>
+<main class="main">
+<header class="topbar"><div><h1 id="sectionTitle">Identidad</h1><p id="sectionSubtitle">Personalizá la plantilla para tu radio.</p></div><div class="topbar-actions"><button class="btn btn-ghost" id="previewButton" type="button">Vista previa</button><button class="btn btn-primary" id="exportButton" type="button">Descargar sitio ZIP</button></div></header>
+<div class="content">
+<div class="note warn"><div><b>Los cambios todavía no están publicados.</b><br>Descargá el ZIP para guardar todo (incluidas las imágenes) y subí su contenido a tu hosting. Antes de cerrar esta página, exportá tus cambios.</div></div>
+<div id="panels"></div>
+<p id="status" class="status-line" role="status" aria-live="polite"></p>
+</div>
+</main>
+</div>
+<aside class="preview" id="preview" aria-label="Vista previa de la radio" aria-hidden="true">
+<div class="pv-head"><b>Vista previa · cambios sin publicar</b><button class="btn btn-ghost btn-sm" id="refreshPreview" type="button">Actualizar</button><button class="btn btn-ghost btn-sm" id="closePreview" type="button">Cerrar</button></div>
+<div class="pv-stage"><div class="pv-frame"><iframe title="Radio en vista previa" id="previewFrame" width="390" height="720"></iframe></div></div>
+<div class="pv-foot">Probá los botones Radio, Reuniones, Prédicas y Ubicación. La radio necesita su enlace de transmisión.</div>
+</aside>
+<input id="importFile" type="file" accept="application/json,.json" hidden>
+<script src="config.js"></script>
+<script src="template-core.js"></script>
+<script src="editor.js"></script>
+</body>
+</html>

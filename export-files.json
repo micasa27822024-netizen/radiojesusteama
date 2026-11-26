@@ -1,0 +1,21 @@
+[
+  "index.html",
+  "app.js",
+  "config.js",
+  "template-core.js",
+  "versiculos.js",
+  "manifest.json",
+  "sw.js",
+  "editor.html",
+  "editor.js",
+  "editor.css",
+  "export-files.json",
+  "radio-config.json",
+  "LEEME.md",
+  "README.md",
+  "assets/fondo-movil.jpg",
+  "assets/fondo-escritorio.jpg",
+  "assets/icono.png",
+  "firebase.database.rules.json",
+  "GUIA-FIREBASE-Y-APP.md"
+]

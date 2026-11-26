@@ -1,0 +1,28 @@
+{
+  "name": "plantilla-maestra-radio",
+  "version": "2.1.0",
+  "description": "Plantilla de radio cristiana con editor visual y exportación portátil",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "limpiar-chat": "node limpiar-chat.js",
+    "limpiar-chat:simular": "node limpiar-chat.js --simular",
+    "test": "node --test tests/*.test.js"
+  },
+  "keywords": [
+    "radio",
+    "pwa",
+    "streaming",
+    "iglesia",
+    "plantilla"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "cloudinary": "^2.0.0",
+    "express": "^4.19.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

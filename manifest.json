@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "Tu Radio Cristiana",
+  "short_name": "Tu Radio",
+  "description": "Escuchá nuestra radio cristiana en vivo.",
+  "lang": "es",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a1828",
+  "theme_color": "#22d3ee",
+  "icons": [
+    {
+      "src": "assets/icono.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
