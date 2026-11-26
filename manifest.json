@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "Tu Radio Cristiana",
-  "short_name": "Tu Radio",
+  "name": "Radio Jesús Te Ama",
+  "short_name": "Radio Jesús Te Ama",
   "description": "Escuchá nuestra radio cristiana en vivo.",
   "lang": "es",
   "start_url": "./index.html",

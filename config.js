@@ -1,12 +1,12 @@
-/* Datos editables desde editor.html. Sin credenciales de la radio original. */
+/* Generado por el editor visual. Volvé a editor.html para modificarlo. */
 window.CONFIG = {
   "sitio": {
-    "nombre": "Tu Radio Cristiana",
-    "nombreCorto": "Tu Radio",
+    "nombre": "Radio Jesús Te Ama",
+    "nombreCorto": "Radio Jesús Te Ama",
     "eslogan": "Una voz de fe y esperanza",
     "descripcion": "Escuchá nuestra radio cristiana en vivo.",
-    "iglesia": "Tu Iglesia",
-    "ciudad": "",
+    "iglesia": "Ministerio Jesús Te Ama",
+    "ciudad": "Gualeguaychú, Entre Ríos",
     "idioma": "es",
     "urlPublica": "",
     "colorBarra": "#22d3ee"
@@ -24,12 +24,12 @@ window.CONFIG = {
     "icono": "assets/icono.png"
   },
   "transmision": {
-    "url": "",
+    "url": "https://stream.zeno.fm/tsp6vhte7ehvv",
     "tipo": "audio/mp3",
     "textoEspera": "Sintonizando transmisión en vivo...",
     "metadatos": {
-      "proveedor": "",
-      "streamId": ""
+      "proveedor": "zeno",
+      "streamId": "tsp6vhte7ehvv"
     }
   },
   "modulos": {
@@ -122,14 +122,14 @@ window.CONFIG = {
   },
   "predicas": {
     "titulo": "Prédicas & Mensajes",
-    "apiKey": "",
-    "canalHandle": "",
-    "canalId": "",
+    "apiKey": "AIzaSyBCWIXQ2VjDnigp-ACUJzefumQx_iVeI7I",
+    "canalHandle": "@MinisterioJesusteama-dv5gd",
+    "canalId": "UCCDAxFEVMhF8tCd9L60-dqg",
     "cantidadUltimas": 4,
     "intervaloRefresco": 300000,
     "textoBotonVivo": "Ver Vivo",
     "textoBotonArchivo": "Ver aquí",
-    "modo": "manual",
+    "modo": "automatico",
     "videos": []
   },
   "ubicacion": {
@@ -149,14 +149,16 @@ window.CONFIG = {
   },
   "redes": [
     {
-      "tipo": "compartir",
-      "etiqueta": "Compartir App",
-      "icono": "fa-solid fa-share-nodes"
+      "tipo": "youtube",
+      "etiqueta": "Youtube",
+      "icono": "fa-brands fa-youtube",
+      "url": "https://www.youtube.com/@MinisterioJesusteama-dv5gd"
     },
     {
       "tipo": "chromecast",
       "etiqueta": "Transmitir a Smart TV",
-      "icono": "fa-solid fa-tv"
+      "icono": "fa-solid fa-tv",
+      "url": ""
     }
   ],
   "chat": {
@@ -229,18 +231,18 @@ window.CONFIG = {
     ]
   },
   "contactos": {
-    "whatsapp": "",
-    "oracion": "",
+    "whatsapp": "+5493446660992",
+    "oracion": "+5493446660992",
     "mensajeWhatsapp": "Hola, quisiera comunicarme con la radio.",
     "mensajeOracion": "Hola, quisiera dejar un pedido de oración:"
   },
   "instalacion": {
     "titulo": "Llevá {radio} con vos",
-    "mensaje": "Instalá nuestra app y escuchá la radio desde tu pantalla de inicio.",
+    "mensaje": "Instalá nuestra app y escuchá la radio Jesús Te Ama desde tu pantalla de inicio.",
     "textoBoton": "Instalar app",
     "textoCancelar": "Ahora no",
-    "mensajeExito": "¡Gracias por instalar {radio}!",
-    "mensajeYaInstalada": "Ya tenés {radio} instalada. ¡Gracias por acompañarnos!",
+    "mensajeExito": "¡Gracias por instalar nuestra Radio Jesús Te Ama",
+    "mensajeYaInstalada": "Ya tenés radio instalada. ¡Gracias por acompañarnos!",
     "instruccionesAndroid": "En Chrome o Edge, abrí el menú y elegí “Instalar app” o “Agregar a la pantalla principal”.",
     "instruccionesIOS": "En Safari, tocá Compartir y después “Agregar a la pantalla de inicio”.",
     "mensajeNoDisponible": "Si no aparece la opción, abrí el sitio con Chrome, Edge o Safari y verificá que tenga HTTPS.",
