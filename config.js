@@ -1,9 +1,9 @@
 /* Generado por el editor visual. Volvé a editor.html para modificarlo. */
 window.CONFIG = {
   "sitio": {
-    "nombre": "Radio Jesús Te Ama",
-    "nombreCorto": "Radio Jesús Te Ama",
-    "eslogan": "Una voz de fe y esperanza",
+    "nombre": "",
+    "nombreCorto": "",
+    "eslogan": "",
     "descripcion": "Escuchá nuestra radio cristiana en vivo.",
     "iglesia": "Ministerio Jesús Te Ama",
     "ciudad": "Gualeguaychú, Entre Ríos",
