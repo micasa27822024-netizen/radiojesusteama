@@ -1,5 +1,5 @@
 /* Versión automática al exportar. Datos actualizados primero desde internet. */
-const VERSION = 'radio-editable-1795737158767';
+const VERSION = 'radio-editable-1795737158768';
 const CACHE_NAME = 'plantilla-' + VERSION;
 const BASE = ['./','./index.html','./config.js','./app.js','./template-core.js','./versiculos.js','./manifest.json','./assets/fondo-movil.jpg','./assets/fondo-escritorio.jpg','./assets/icono.png'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE_NAME).then(c=>Promise.all(BASE.map(p=>c.add(p).catch(()=>null)))));});
