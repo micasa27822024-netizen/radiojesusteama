@@ -1,8 +1,6 @@
 {
   "sitio": {
-    "nombre": "Radio Jesús Te Ama",
-    "nombreCorto": "Radio Jesús Te Ama",
-    "eslogan": "Una voz de fe y esperanza",
+   
     "descripcion": "Escuchá nuestra radio cristiana en vivo.",
     "iglesia": "Ministerio Jesús Te Ama",
     "ciudad": "Gualeguaychú, Entre Ríos",
@@ -148,7 +146,7 @@
   },
   "ubicacion": {
     "titulo": "Ministerio Jesús Te Ama Pueblo Belgrano",
-    "direccion": " Veronesi y Nuestra Señora de la Merced 417",
+    "direccion": "Nuestra Señora de la Merced 417",
     "localidad": "Pueblo Belgrano, Gualeguaychú",
     "provincia": "Entre Ríos",
     "codigoPostal": "2821",
