@@ -1,9 +1,6 @@
 /* Generado por el editor visual. Volvé a editor.html para modificarlo. */
 window.CONFIG = {
   "sitio": {
-    "nombre": "",
-    "nombreCorto": "",
-    "eslogan": "",
     "descripcion": "Escuchá nuestra radio cristiana en vivo.",
     "iglesia": "Ministerio Jesús Te Ama",
     "ciudad": "Gualeguaychú, Entre Ríos",
@@ -153,8 +150,8 @@ window.CONFIG = {
     "localidad": "Pueblo Belgrano, Gualeguaychú",
     "provincia": "Entre Ríos",
     "codigoPostal": "2821",
-    "linkMapa": "https://maps.app.goo.gl/JbG8FRsqbsN1tbd19",
-    "embedUrl": "https://maps.app.goo.gl/JbG8FRsqbsN1tbd19",
+    "linkMapa": "https://maps.app.goo.gl/XBd4it1f2c8yzfDn6",
+    "embedUrl": "https://maps.google.com/maps?q=-33.0152727,-58.4613432&z=17&output=embed",
     "textoComoLlegar": "Cómo llegar",
     "textoMiUbicacion": "Usar mi ubicación",
     "textoConsultarCongregaciones": "Consultar sobre la iglesia",
