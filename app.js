@@ -8,8 +8,8 @@
 
     const DEFAULTS = {
       sitio: {
-        nombre: 'Radio en vivo',
-        nombreCorto: 'Radio',
+        nombre: '',
+        nombreCorto: '',
         eslogan: '',
         descripcion: '',
         iglesia: '',
