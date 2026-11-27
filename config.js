@@ -146,7 +146,7 @@ window.CONFIG = {
   },
   "ubicacion": {
     "titulo": "Ministerio Jesús Te Ama Pueblo Belgrano",
-    "direccion": " Veronesi y Nuestra Señora de la Merced 417",
+    "direccion": "Nuestra Señora de la Merced 417",
     "localidad": "Pueblo Belgrano, Gualeguaychú",
     "provincia": "Entre Ríos",
     "codigoPostal": "2821",
